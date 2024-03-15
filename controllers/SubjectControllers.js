@@ -26,6 +26,54 @@ module.exports.saveSubjects = async (req, res) => {
     });
 };
 
+module.exports.getSubjectsMax = async (req, res) => {
+  // Extract the subject ID from the request
+  const { subjectId } = req.params;
+
+  // Validate the presence of subjectId
+  if (!subjectId) {
+    return res.status(400).send({ message: "Missing subject ID" });
+  }
+
+  try {
+    console.log(subjectId);
+    // Find entries for the specified subject
+    const entries = await SubjectModel.find({ _id: subjectId });
+    // Check if entries were found
+    if (!entries.length) {
+      return res.status(404).send({ message: "No entries found for subject" });
+    }
+
+    const findMAxSummatory = () => {
+      let maxVal = 0;
+      let maxItem = null;
+      entries[0]?.students.map((item) => {
+        const summatory =
+          (item?.grade1 || 0) +
+          (item?.grade2 || 0) +
+          (item?.grade3 || 0) +
+          (item?.grade4 || 0) +
+          (item?.grade5 || 0) +
+          (item?.grade6 || 0) +
+          (item?.grade7 || 0) +
+          (item?.grade8 || 0);
+        if (summatory > maxVal) {
+          maxVal = summatory;
+          maxItem = { maxVal, studentId: item.studentId };
+        }
+      });
+      return maxItem;
+    };
+
+    const highest = findMAxSummatory();
+
+    res.send(highest);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Error fetching grades" });
+  }
+};
+
 module.exports.updateSubject = async (req, res) => {
   try {
     const studentData = req.body;
