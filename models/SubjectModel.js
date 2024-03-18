@@ -4,6 +4,7 @@ const studentSchema = new mongoose.Schema({
   studentId: String,
   grade1: Number,
   grade2: Number,
+  grade3: Number,
   grade4: Number,
   grade5: Number,
   grade6: Number,

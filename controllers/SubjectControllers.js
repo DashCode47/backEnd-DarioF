@@ -36,7 +36,6 @@ module.exports.getSubjectsMax = async (req, res) => {
   }
 
   try {
-    console.log(subjectId);
     // Find entries for the specified subject
     const entries = await SubjectModel.find({ _id: subjectId });
     // Check if entries were found
@@ -66,6 +65,65 @@ module.exports.getSubjectsMax = async (req, res) => {
     };
 
     const highest = findMAxSummatory();
+
+    res.send(highest);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Error fetching grades" });
+  }
+};
+
+module.exports.getSubjectMin = async (req, res) => {
+  // Extract the subject ID from the request
+  const { subjectId } = req.params;
+
+  // Validate the presence of subjectId
+  if (!subjectId) {
+    return res.status(400).send({ message: "Missing subject ID" });
+  }
+
+  try {
+    console.log("here", subjectId);
+    // Find entries for the specified subject
+    const entries = await SubjectModel.find({ _id: subjectId });
+    // Check if entries were found
+    if (!entries.length) {
+      return res.status(404).send({ message: "No entries found for subject" });
+    }
+    const findMinSummatory = () => {
+      let minVal =
+        (entries[0]?.students[0]?.grade1 || 0) +
+        (entries[0]?.students[0]?.grade2 || 0) +
+        (entries[0]?.students[0]?.grade3 || 0) +
+        (entries[0]?.students[0]?.grade4 || 0) +
+        (entries[0]?.students[0]?.grade5 || 0) +
+        (entries[0]?.students[0]?.grade6 || 0) +
+        (entries[0]?.students[0]?.grade7 || 0) +
+        (entries[0]?.students[0]?.grade8 || 0);
+      let studentInitialId = entries[0]?.students[0].studentId;
+
+      let minItem = null;
+      entries[0]?.students.map((item) => {
+        const summatory =
+          (item?.grade1 || 0) +
+          (item?.grade2 || 0) +
+          (item?.grade3 || 0) +
+          (item?.grade4 || 0) +
+          (item?.grade5 || 0) +
+          (item?.grade6 || 0) +
+          (item?.grade7 || 0) +
+          (item?.grade8 || 0);
+        if (summatory < minVal) {
+          minVal = summatory;
+          minItem = { minVal, studentId: item.studentId };
+        } else {
+          minItem = { minVal, studentId: studentInitialId };
+        }
+      });
+      return minItem;
+    };
+
+    const highest = findMinSummatory();
 
     res.send(highest);
   } catch (error) {
