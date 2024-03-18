@@ -8,7 +8,9 @@ const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin:"http://192.168.56.1:3000"
+}));
 // Connect to MongoDB
 mongoose
   .connect(
